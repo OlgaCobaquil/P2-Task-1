@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 /**
@@ -34,7 +35,7 @@ public class FilterSpam {
         ArrayList<Mensaje> TestList = new ArrayList<>();
         
         ArrayList<Mensaje> Mensaje = new ArrayList<>();
-        ArrayList<Mensaje> ingreso = new ArrayList<>();
+        ArrayList<String[]> ingreso = new ArrayList<>();
         
         ArrayList<Mensaje> ingreso1 = new ArrayList<>();
         
@@ -55,26 +56,33 @@ public class FilterSpam {
         
         double hola2 = sel.probMain(Mensaje,"ham", 1);
         System.out.println("probabilidad " +hola);
-        System.out.println("probabilidad ham" + hola2);
+        System.out.println("probabilidad ham " + hola2);
         System.out.println("Palabras Ham: "+ palHam.size());
         System.out.println("Palabras Spam:  "+ palSpam.size());
         System.out.println(cantPalabras);
         sel.seleccionar();
         
         
-        String content [] = {"esta", "es", "prueba"};
+       
+        ingreso = reader.LeerNuevoArchivo("prueba.txt");
+        int tama = ingreso.size();
+        System.out.println(tama);
         
-
-        double pruebaOracionSpam = sel.probTotalSpam(content, 1, palHam, palSpam, cantPalabras, TrainingList);
-        System.out.println("prob oracion spam" +pruebaOracionSpam);
-        double pruebaOracionHam = sel.probTotalHam(content, 1, palHam, palSpam, cantPalabras, TrainingList);
-        System.out.println("prob oracion ham" +pruebaOracionHam);
-        if (pruebaOracionHam< pruebaOracionSpam){
-            System.out.println("Es SPAM");
+        for (int i = 0; i<ingreso.size();i++){
+            
+            double pruebaOracionSpam = sel.probTotalSpam(ingreso.get(i), 1, palHam, palSpam, cantPalabras, TrainingList);
+            System.out.println("prob oracion spam " +pruebaOracionSpam);
+            double pruebaOracionHam = sel.probTotalHam(ingreso.get(i), 1, palHam, palSpam, cantPalabras, TrainingList);
+            System.out.println("prob oracion ham " +pruebaOracionHam);
+            if (pruebaOracionHam< pruebaOracionSpam){
+                System.out.println("Es SPAM");
+                
+            }
+            else if (pruebaOracionHam> pruebaOracionSpam){
+                System.out.println("Es HAM");
+            }
         }
-        else if (pruebaOracionHam> pruebaOracionSpam){
-            System.out.println("Es HAM");
-        }
+        
        
        
         

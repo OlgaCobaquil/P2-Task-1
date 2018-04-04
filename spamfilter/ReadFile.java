@@ -20,7 +20,9 @@ public class ReadFile {
     ArrayList<String> Spam = new ArrayList<>();
     ArrayList<String> Ham = new ArrayList<>();
     ArrayList<Mensaje> Mensaje = new ArrayList<>();
-
+    
+    ArrayList<String> entrada = new ArrayList<>();
+    String [] oraciones;
     
     public ReadFile(ArrayList Spam, ArrayList Ham, ArrayList Mensaje)throws FileNotFoundException, IOException{
         this.Spam = Spam;
@@ -29,33 +31,22 @@ public class ReadFile {
         
     }
     
-    public ArrayList<Mensaje> LeerNuevoArchivo(String direccion) throws FileNotFoundException, IOException{
-        ArrayList<Mensaje> devuelta = new ArrayList<>();
+    public ArrayList<String[]> LeerNuevoArchivo(String direccion) throws FileNotFoundException, IOException{
+        ArrayList devuelta = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(direccion))) {
             
             String line;
             while ((line = br.readLine()) != null) {
-                
-                String [] oracion = line.split("\t");
-                System.out.println(oracion[0].toString());
-                if (oracion[0].equals("ham")){
-                    oracion[1] = oracion[1].replaceAll("[^a-zA-Z0-9\\s\']+", "");
-                    
-                    Mensaje mensaje = new Mensaje();
-                    mensaje.Tipo = "ham";
-                    mensaje.Mensaje = oracion[1];
-                    devuelta.add(mensaje);
-                }
-                else if (oracion[0].equals("spam")){
-                    oracion[1] = oracion[1].replaceAll("[^a-zA-Z0-9\\s\']+", "");
-                    
-                    Mensaje mensaje = new Mensaje();
-                    mensaje.Tipo = "spam";
-                    mensaje.Mensaje = oracion[1];
-                    devuelta.add(mensaje);
-                }
-                
-                // process the line.
+                String [] oracion = line.split("\\t");
+                oracion[0] = oracion[0].replaceAll("[^a-zA-Z\\s]+", "");
+                oracion[0] = oracion[0].toLowerCase();
+                entrada.add(oracion[0]);
+ 
+            }
+            
+            for (int i=0; i<=entrada.size()-1;i++){
+                String[] oraciones=entrada.get(i).split("\\s");
+                devuelta.add(oraciones);
             }
             
             // line is not visible here.
@@ -68,9 +59,11 @@ public class ReadFile {
             String line;
             while ((line = br.readLine()) != null) {
                 
+                
                 String [] content = line.split("\t");
                 if (content[0].equals("ham")){
-                    content[1] = content[1].replaceAll("[^a-zA-Z0-9\\s\']+", "");
+                    content[1] = content[1].replaceAll("[^a-zA-Z\\s]+", "");
+                    content[1] = content[1].toLowerCase();
                     this.Ham.add(content[1]);
                     Mensaje msj = new Mensaje();
                     msj.Tipo = "ham";
@@ -78,7 +71,8 @@ public class ReadFile {
                     this.Mensaje.add(msj);
                 }
                 else if (content[0].equals("spam")){
-                    content[1] = content[1].replaceAll("[^a-zA-Z0-9\\s\']+", "");
+                    content[1] = content[1].replaceAll("[^a-zA-Z\\s]+", "");
+                    content[1] = content[1].toLowerCase();
                     this.Spam.add(content[1]);
                     Mensaje msj = new Mensaje();
                     msj.Tipo = "spam";
