@@ -37,7 +37,8 @@ public class FilterSpam {
         ArrayList<Mensaje> Mensaje = new ArrayList<>();
         ArrayList<String[]> ingreso = new ArrayList<>();
         
-        ArrayList<Mensaje> ingreso1 = new ArrayList<>();
+        ArrayList<Mensaje> MensajeSalida = new ArrayList<>();
+        
         
         /*Abrir file y leerlo*/
         ReadFile reader = new ReadFile(Spam, Ham, Mensaje);
@@ -45,25 +46,20 @@ public class FilterSpam {
         /*task 1.2 y 1.3 selecionar y sanitizar*/
         Seleccion sel = new Seleccion(Mensaje, TrainingList, CrossList, TestList);
         
-        
-        
-        
         int cantPalabras = sel.contarPalabras();
-        
         sel.contPartes(TrainingList, palHam, palSpam);
         
         double hola = sel.laplaceSmoothingBasic(1, "until", palHam, cantPalabras);
         
         double hola2 = sel.probMain(Mensaje,"ham", 1);
-        System.out.println("probabilidad " +hola);
+        /*System.out.println("probabilidad " +hola);
         System.out.println("probabilidad ham " + hola2);
         System.out.println("Palabras Ham: "+ palHam.size());
         System.out.println("Palabras Spam:  "+ palSpam.size());
-        System.out.println(cantPalabras);
+        System.out.println(cantPalabras);*/
         sel.seleccionar();
         
-        
-       
+        //abrir archivo 
         ingreso = reader.LeerNuevoArchivo("prueba.txt");
         int tama = ingreso.size();
         System.out.println(tama);
@@ -74,19 +70,36 @@ public class FilterSpam {
             System.out.println("prob oracion spam " +pruebaOracionSpam);
             double pruebaOracionHam = sel.probTotalHam(ingreso.get(i), 1, palHam, palSpam, cantPalabras, TrainingList);
             System.out.println("prob oracion ham " +pruebaOracionHam);
+            
+            Mensaje mensaje = new Mensaje();
+            
             if (pruebaOracionHam< pruebaOracionSpam){
                 System.out.println("Es SPAM");
+                mensaje.setTipo("spam");
+                mensaje.setMensaje((String.join(" ", ingreso.get(i))));
+                MensajeSalida.add(mensaje);
+                //System.out.println(MensajeSalida.get(i).Tipo);
+                //System.out.println(MensajeSalida.get(i).Mensaje);
+                
                 
             }
             else if (pruebaOracionHam> pruebaOracionSpam){
                 System.out.println("Es HAM");
+                mensaje.setTipo("ham");
+                mensaje.setMensaje((String.join(" ", ingreso.get(i))));
+                MensajeSalida.add(mensaje);
+                //System.out.println(MensajeSalida.get(i).Tipo);
+                //System.out.println(MensajeSalida.get(i).Mensaje);
             }
+            
         }
+        PrintWriter writer = new PrintWriter("respuestas.txt", "UTF-8");
+        for (int i=0; i<=MensajeSalida.size()-1; i++){
+            writer.println(MensajeSalida.get(i).Tipo + "\t" + MensajeSalida.get(i).Mensaje + "\n");
+            
+        }
+        writer.close();
         
-       
-       
-        
-       
     }
     
 }
