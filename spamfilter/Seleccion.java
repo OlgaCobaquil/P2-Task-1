@@ -129,4 +129,21 @@ public class Seleccion {
     public double probTotalHam(String [] mensaje, int k, ArrayList tipoHam, ArrayList tipoSpam, int palabrasTotales, ArrayList<Mensaje> grupo){
         return (probOracion(mensaje, k, tipoHam, palabrasTotales) * probMain(grupo, "ham", k ))/(probOracion(mensaje, k, tipoHam, palabrasTotales) * probMain(grupo, "ham", k ) + probOracion(mensaje,k, tipoSpam, palabrasTotales) * probMain(grupo, "spam", k ));
     }
+    
+    public double rendimiento(ArrayList<Mensaje> evaluar, ArrayList<Mensaje> base ){
+        double contAciertos = 0;
+        for (int i=0; i<= evaluar.size()-1; i++){
+            String tipoEvaluar = evaluar.get(i).Tipo;
+            String tipoBase = base.get(i).Tipo;
+            
+            if (tipoEvaluar.equals(tipoBase)){
+                contAciertos++;
+                
+            }
+        }
+       
+        double resultado = (contAciertos/evaluar.size());
+     
+        return resultado;
+    }
 }
