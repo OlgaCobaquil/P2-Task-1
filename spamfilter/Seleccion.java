@@ -29,7 +29,7 @@ public class Seleccion {
     
     public void seleccionar(){
         while (this.TrainingList.size() < (int) (this.mensajeSize * 0.8)) {
-            int num = (int) Math.random() * this.Mensaje.size();
+            int num = (int) (Math.random() * this.Mensaje.size());
             this.TrainingList.add(this.Mensaje.get(num));
             this.Mensaje.remove(num);        }
 

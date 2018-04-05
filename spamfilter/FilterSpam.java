@@ -39,6 +39,9 @@ public class FilterSpam {
         
         ArrayList<Mensaje> MensajeSalida = new ArrayList<>();
         ArrayList<Mensaje> CrossSalida = new ArrayList<>();
+        ArrayList<Mensaje> TestSalida = new ArrayList<>();
+        int mejorK =0;
+        double temporal = 0;
         
         
         //leer el archivo 
@@ -52,7 +55,6 @@ public class FilterSpam {
         sel.contPartes(TrainingList, palHam, palSpam);
         
         double hola = sel.laplaceSmoothingBasic(1, "until", palHam, cantPalabras);
-        
         double hola2 = sel.probMain(Mensaje,"ham", 1);
         /*System.out.println("probabilidad " +hola);
         System.out.println("probabilidad ham " + hola2);
@@ -61,50 +63,78 @@ public class FilterSpam {
         System.out.println(cantPalabras);*/
         sel.seleccionar();
         
+       
+        
         /*
          * Cross Validation
+         * CrossSalida: array 
          */
-        
-        for (int i = 0; i <= CrossList.size()-1; i++){
-            double pruebaOracionSpam = sel.probTotalSpam(CrossList.get(i).Mensaje.split("\\s"), 1, palHam, palSpam, cantPalabras, TrainingList);
-            //System.out.println("prob oracion spam " +pruebaOracionSpam);
-            double pruebaOracionHam = sel.probTotalHam(CrossList.get(i).Mensaje.split("\\s"), 1, palHam, palSpam, cantPalabras, TrainingList);
-            //System.out.println("prob oracion ham " +pruebaOracionHam);
+        for (int k = 1; k<=4; k++ ){
+            CrossSalida = new ArrayList<Mensaje>();
+            for (int i = 0; i <= CrossList.size()-1; i++){
+                double pruebaOracionSpam = sel.probTotalSpam(CrossList.get(i).Mensaje.split("\\s"), k, palHam, palSpam, cantPalabras, TrainingList);
+                double pruebaOracionHam = sel.probTotalHam(CrossList.get(i).Mensaje.split("\\s"), k, palHam, palSpam, cantPalabras, TrainingList);
+              
+                Mensaje mensajeCr = new Mensaje();
             
-            Mensaje mensajeCr = new Mensaje();
-            
-            if (pruebaOracionHam< pruebaOracionSpam){
-                //System.out.println("Es SPAM");
-                mensajeCr.setTipo("spam");
-                mensajeCr.setMensaje((String.join(" ", CrossList.get(i).Mensaje)));
-                CrossSalida.add(mensajeCr);               
+                if (pruebaOracionHam< pruebaOracionSpam){
+                    mensajeCr.setTipo("spam");
+                    mensajeCr.setMensaje((String.join(" ", CrossList.get(i).Mensaje)));
+                    CrossSalida.add(mensajeCr);               
+
+                }
+                else if (pruebaOracionHam> pruebaOracionSpam){
+                    mensajeCr.setTipo("ham");
+                    mensajeCr.setMensaje((String.join(" ", CrossList.get(i).Mensaje)));
+                    CrossSalida.add(mensajeCr);
+                }
+            }
+            //calcular eficiencia
+            double porcentaje = sel.rendimiento(CrossSalida, CrossList);
+            if (porcentaje > temporal){
+                temporal = porcentaje;
+                mejorK = k;
                 
             }
+        }
+        System.out.println("El mejor k es: " + mejorK);
+        System.out.println("Porcentaje: " + temporal);
+
+        
+        /*
+         * Test
+         */
+        
+        for (int i = 0; i <= TestList.size()-1; i++){
+            double pruebaOracionSpam = sel.probTotalSpam(TestList.get(i).Mensaje.split("\\s"), mejorK, palHam, palSpam, cantPalabras, TrainingList);
+            double pruebaOracionHam = sel.probTotalHam(TestList.get(i).Mensaje.split("\\s"), mejorK, palHam, palSpam, cantPalabras, TrainingList);
+              
+            Mensaje mensajeTest= new Mensaje();
+            
+            if (pruebaOracionHam< pruebaOracionSpam){
+                mensajeTest.setTipo("spam");
+                mensajeTest.setMensaje((String.join(" ", TestList.get(i).Mensaje)));
+                TestSalida.add(mensajeTest);               
+
+            }
             else if (pruebaOracionHam> pruebaOracionSpam){
-                //System.out.println("Es HAM");
-                mensajeCr.setTipo("ham");
-                mensajeCr.setMensaje((String.join(" ", CrossList.get(i).Mensaje)));
-                CrossSalida.add(mensajeCr);
+                mensajeTest.setTipo("ham");
+                mensajeTest.setMensaje((String.join(" ", TestList.get(i).Mensaje)));
+                TestSalida.add(mensajeTest);
             }
         }
-        //calcular eficiencia
-        
-        double porcentaje = sel.rendimiento(CrossSalida, CrossList);
-        System.out.println("Porcentaje: " + porcentaje);
+        double porcentaje1 = sel.rendimiento(TestSalida, TestList);
+        System.out.println("Porcentaje final: "+ porcentaje1);
         
         //abrir archivo 
         ingreso = reader.LeerNuevoArchivo("prueba.txt");
-        int tama = ingreso.size();
-        System.out.println(tama);
-        
-        
  
         for (int i = 0; i<ingreso.size();i++){
             
-            double pruebaOracionSpam = sel.probTotalSpam(ingreso.get(i), 1, palHam, palSpam, cantPalabras, TrainingList);
-            System.out.println("prob oracion spam " +pruebaOracionSpam);
-            double pruebaOracionHam = sel.probTotalHam(ingreso.get(i), 1, palHam, palSpam, cantPalabras, TrainingList);
-            System.out.println("prob oracion ham " +pruebaOracionHam);
+            double pruebaOracionSpam = sel.probTotalSpam(ingreso.get(i), mejorK, palHam, palSpam, cantPalabras, TrainingList);
+            //System.out.println("prob oracion spam " +pruebaOracionSpam);
+            double pruebaOracionHam = sel.probTotalHam(ingreso.get(i), mejorK, palHam, palSpam, cantPalabras, TrainingList);
+            //System.out.println("prob oracion ham " +pruebaOracionHam);
             
             Mensaje mensaje = new Mensaje();
             
